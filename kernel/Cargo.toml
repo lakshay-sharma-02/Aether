@@ -13,3 +13,6 @@ x86_64 = "0.14"
 uart_16550 = "0.2"
 pic8259 = "0.10"
 pc-keyboard = "0.5"
+
+[package.metadata.bootimage]
+run-command = ["qemu-system-x86_64.exe", "-drive", "format=raw,file={}"]
