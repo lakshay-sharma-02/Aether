@@ -7,3 +7,9 @@ members = [
     # "compositor", # future member
     # "shell",      # future member
 ]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
