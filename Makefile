@@ -1,30 +1,35 @@
 # Aether build automation
 # ─────────────────────────────────────────────────
-# Run these from the repo root:
-#   make run       → build kernel + launch QEMU (Windows GUI)
-#   make build     → build kernel only
-#   make headless  → build kernel + launch QEMU in terminal (no GUI)
-#   make to-wsl    → sync Windows → WSL native dir (faster builds)
-#   make to-win    → sync WSL native dir → Windows
+# Run from the repo root (WSL):
+#   make build    → compile kernel + create bootimage
+#   make run      → build + launch QEMU in terminal (curses VGA display)
+#   make serial   → build + launch QEMU with serial output only (no VGA)
+#   make to-wsl   → sync Windows → WSL native dir (faster builds)
+#   make to-win   → sync WSL native dir → Windows
 
-CARGO       := cargo
-KERNEL_PKG  := aether-kernel
-WSL_DIR     := $(HOME)/aether
-WIN_DIR     := /mnt/c/Users/sharm/Desktop/Aether
-BOOTIMAGE   := $(WIN_DIR)/target/x86_64-unknown-none/debug/bootimage-aether-kernel.bin
+CARGO      := $${HOME}/.cargo/bin/cargo
+KERNEL_PKG := aether-kernel
+WSL_DIR    := $(HOME)/aether
+WIN_DIR    := /mnt/c/Users/sharm/Desktop/Aether
+BOOTIMAGE  := $(WIN_DIR)/target/x86_64-unknown-none/debug/bootimage-aether-kernel.bin
 
-.PHONY: build run headless to-wsl to-win clean
+.PHONY: build run serial to-wsl to-win clean
 
 build:
-	$(CARGO) build -p $(KERNEL_PKG)
+	$(CARGO) bootimage --manifest-path kernel/Cargo.toml
 
+# Full VGA text-mode display rendered inside your WSL terminal
 run: build
-	qemu-system-x86_64.exe -drive format=raw,file=$(BOOTIMAGE)
-
-headless: build
 	qemu-system-x86_64 \
 		-drive format=raw,file=$(BOOTIMAGE) \
 		-display curses
+
+# Serial-only mode — output goes to stdout, no display window needed
+serial: build
+	qemu-system-x86_64 \
+		-drive format=raw,file=$(BOOTIMAGE) \
+		-nographic \
+		-serial stdio
 
 to-wsl:
 	rsync -av --delete \
