@@ -28,7 +28,7 @@ run: build
 serial: build
 	qemu-system-x86_64 \
 		-drive format=raw,file=$(BOOTIMAGE) \
-		-nographic \
+		-display none \
 		-serial stdio
 
 to-wsl:
