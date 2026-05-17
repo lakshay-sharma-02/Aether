@@ -1,0 +1,9 @@
+[workspace]
+resolver = "2"
+members = [
+    "kernel",
+    # "vexfs",      # future member
+    # "ai-core",   # future member
+    # "compositor", # future member
+    # "shell",      # future member
+]

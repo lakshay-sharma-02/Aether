@@ -1,0 +1,21 @@
+[package]
+name = "aether-kernel"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "aether-kernel"
+path = "src/main.rs"
+
+[dependencies]
+bootloader = "0.9"
+x86_64 = "0.14"
+uart_16550 = "0.2"
+pic8259 = "0.10"
+pc-keyboard = "0.5"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"

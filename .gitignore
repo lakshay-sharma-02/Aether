@@ -1,0 +1,25 @@
+# Rust build artifacts
+target/
+**/*.rs.bk
+
+# Cargo lock — keep for binaries, ignore for libs
+# (keep Cargo.lock since this is an OS binary crate)
+
+# Bootimage output
+*.bin
+*.img
+
+# Editor / IDE
+.vscode/
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# WSL artefacts
+*.bak
