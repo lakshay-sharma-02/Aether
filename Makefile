@@ -7,11 +7,9 @@
 #   make to-wsl   → sync Windows → WSL native dir (faster builds)
 #   make to-win   → sync WSL native dir → Windows
 
-CARGO      := $${HOME}/.cargo/bin/cargo
+CARGO      := $(HOME)/.cargo/bin/cargo
 KERNEL_PKG := aether-kernel
-WSL_DIR    := $(HOME)/aether
-WIN_DIR    := /mnt/c/Users/sharm/Desktop/Aether
-BOOTIMAGE  := $(WIN_DIR)/target/x86_64-unknown-none/debug/bootimage-aether-kernel.bin
+BOOTIMAGE  := target/x86_64-unknown-none/debug/bootimage-aether-kernel.bin
 
 .PHONY: build run serial to-wsl to-win clean
 
