@@ -11,8 +11,9 @@ const VGA_BUFFER: *mut u8 = 0xb8000 as *mut u8;
 const VGA_WIDTH: usize = 80;
 
 /// Color code: foreground | (background << 4)
-/// 0x55 = white (0x5) on purple (0x5) — technically magenta/purple in CGA palette
-const COLOR_CODE: u8 = 0x55;
+/// 0x5F = bright white (0xF) on purple/magenta (0x5) in the CGA palette.
+/// 0x55 would be magenta-on-magenta — both nibbles the same, invisible text.
+const COLOR_CODE: u8 = 0x5F;
 
 /// Write a single ASCII character directly into the VGA text buffer.
 ///
@@ -41,7 +42,7 @@ pub extern "C" fn _start() -> ! {
 }
 
 fn kernel_main() -> ! {
-    // Print "Aether" at VGA position (0, 0) with color 0x55 (white on purple).
+    // Print "Aether" at VGA position (0, 0) with color 0x5F (bright white on purple).
     unsafe {
         vga_print(0, 0, b"Aether", COLOR_CODE);
     }

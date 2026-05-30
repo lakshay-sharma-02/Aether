@@ -242,9 +242,10 @@ impl Journal {
             }
         };
 
-        // Read all entries
+        // Read all entries — continue past corrupt ones, stop at first cleanly-free slot.
         let mut entries: Vec<JournalEntry> = Vec::new();
         let mut next_slot = 0usize;
+        let mut corrupt_count = 0usize;
 
         for i in 0..MAX_JOURNAL_ENTRIES {
             let offset = JOURNAL_OFFSET
@@ -259,11 +260,26 @@ impl Journal {
                     entries.push(entry);
                     next_slot = i + 1;
                 }
-                _ => {
+                Ok(_entry) => {
+                    // Cleanly-free slot: this is the end of the written journal.
                     if next_slot == 0 { next_slot = i; }
                     break;
                 }
+                Err(_e) => {
+                    // Corrupt entry — log and continue scanning so valid
+                    // committed transactions that follow are not missed.
+                    corrupt_count += 1;
+                    next_slot = i + 1;
+                }
             }
+        }
+
+        if corrupt_count > 0 {
+            eprintln!(
+                "VexFS journal: skipped {} corrupt entries during open; \
+                 committed transactions may still be replayed.",
+                corrupt_count
+            );
         }
 
         // Find tx_ids that have a COMMIT entry — only replay those

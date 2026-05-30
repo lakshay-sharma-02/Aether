@@ -354,14 +354,13 @@ impl VexFS {
 
     /// Flush a single dirty cached file to the write buffer / disk.
     fn flush_file(&mut self, ino: u64) {
-        let (name, disk_index, dirty) = match self.files.get_mut(&ino) {
+        let (name, disk_index) = match self.files.get_mut(&ino) {
             Some(f) if f.dirty => {
                 f.dirty = false;
-                (f.name.clone(), f.disk_index, true)
+                (f.name.clone(), f.disk_index)
             }
             _ => return,
         };
-        if !dirty { return; }
 
         let data = match self.cache.get(ino) {
             Some(d) => d.clone(),

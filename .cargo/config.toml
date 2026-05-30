@@ -1,6 +1,6 @@
-[build]
-target = "x86_64-unknown-none"
-
-[target.x86_64-unknown-none]
-linker = "rust-lld"
-runner = "bootimage runner"
+# Root-level cargo config — intentionally minimal.
+#
+# The kernel crate sets its own target (x86_64-unknown-none) and runner
+# (bootimage) inside kernel/.cargo/config.toml, scoped to that crate only.
+# Putting bare-metal settings here would force the same target on every other
+# crate in the workspace (VexFS, ai-core, …) and break their builds.

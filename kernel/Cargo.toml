@@ -10,9 +10,10 @@ path = "src/main.rs"
 [dependencies]
 bootloader = "0.9"
 x86_64 = "0.14"
-uart_16550 = "0.2"
-pic8259 = "0.10"
-pc-keyboard = "0.5"
+# Uncomment as each driver is implemented:
+# uart_16550 = "0.2"   # serial port driver
+# pic8259 = "0.10"     # PIC interrupt controller
+# pc-keyboard = "0.5"  # PS/2 keyboard decoder
 
 [package.metadata.bootimage]
 run-command = ["qemu-system-x86_64", "-drive", "format=raw,file={}"]

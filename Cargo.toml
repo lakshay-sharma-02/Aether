@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
     "kernel",
-    # "vexfs",      # future member
+    "vexfs",
     # "ai-core",   # future member
     # "compositor", # future member
     # "shell",      # future member
@@ -13,3 +13,6 @@ panic = "abort"
 
 [profile.release]
 panic = "abort"
+opt-level = 3
+lto = true
+codegen-units = 1

@@ -65,10 +65,30 @@ impl FreeList {
     /// Add a freed extent. Merges adjacent extents automatically.
     pub fn free(&mut self, offset: u64, length: u64) {
         if offset == 0 || length == 0 { return; }
-        if self.extents.len() >= MAX_PERSISTED_EXTENTS { return; }
 
+        // Always push and merge — merging may reduce the count below the cap.
         self.extents.push(FreeExtent::new(offset, length));
         self.merge_adjacent();
+
+        // If we're still over the cap after merging, drop the smallest extent
+        // and log a warning so the operator knows space is being abandoned.
+        while self.extents.len() > MAX_PERSISTED_EXTENTS {
+            // Remove the smallest extent (least recoverable value).
+            if let Some(min_idx) = self.extents.iter().enumerate()
+                .min_by_key(|(_, e)| e.length)
+                .map(|(i, _)| i)
+            {
+                let dropped = self.extents.remove(min_idx);
+                eprintln!(
+                    "VexFS WARN: free list at capacity ({}); \
+                     dropping extent offset={} length={} — \
+                     this space cannot be reclaimed until remount.",
+                    MAX_PERSISTED_EXTENTS, dropped.offset, dropped.length
+                );
+            } else {
+                break;
+            }
+        }
     }
 
     /// Find and claim a free extent of at least `min_size` bytes.

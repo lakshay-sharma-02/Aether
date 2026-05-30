@@ -218,28 +218,44 @@ impl DiskManager {
     /// Allocate space for file data.
     pub fn alloc_data(&mut self, size: usize) -> u64 {
         if let Some(offset) = self.free_list.alloc(size) {
+            // Reclaimed extent — update free_blocks to reflect the claim.
+            let blocks_reclaimed = (size as u64 + self.superblock.block_size as u64 - 1)
+                / self.superblock.block_size as u64;
+            self.superblock.free_blocks =
+                self.superblock.free_blocks.saturating_sub(blocks_reclaimed);
             return offset;
+        }
+
+        // Align the allocation start to 512 bytes.
+        let rem = self.superblock.next_data_offset % 512;
+        if rem != 0 {
+            self.superblock.next_data_offset += 512 - rem;
         }
 
         let offset = self.superblock.next_data_offset;
         self.superblock.next_data_offset += size as u64;
 
-        // Keep inode_table's view of next_disk_end in sync
+        // Keep inode_table's view of next_disk_end in sync.
         if self.superblock.next_data_offset > self.inode_table.next_disk_end {
             self.inode_table.next_disk_end = self.superblock.next_data_offset;
         }
 
-        // Align to 512 bytes
-        let rem = self.superblock.next_data_offset % 512;
-        if rem != 0 {
-            self.superblock.next_data_offset += 512 - rem;
-        }
+        // Update free_blocks (BUG-3 fix: track consumption).
+        let blocks_used = (size as u64 + self.superblock.block_size as u64 - 1)
+            / self.superblock.block_size as u64;
+        self.superblock.free_blocks =
+            self.superblock.free_blocks.saturating_sub(blocks_used);
+
         offset
     }
 
     /// Return a data extent to the free list.
     pub fn free_data(&mut self, offset: u64, length: u64) {
         self.free_list.free(offset, length);
+        // BUG-3 fix: reflect freed space back into the superblock counter.
+        let blocks_freed = (length + self.superblock.block_size as u64 - 1)
+            / self.superblock.block_size as u64;
+        self.superblock.free_blocks += blocks_freed;
     }
 
     /// Write file data to disk with full journal protection.
