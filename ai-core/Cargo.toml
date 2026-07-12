@@ -1,0 +1,31 @@
+[package]
+name = "ai-core"
+version = "0.1.0"
+edition = "2021"
+description = "AI subsystem for Aether kernel — runs in ring 0 with no_std"
+
+[lib]
+crate-type = ["staticlib"]  # Link into kernel
+
+[dependencies]
+# Core kernel support
+x86_64 = "0.14"
+
+# Collections (no_std compatible)
+hashbrown = { version = "0.14", default-features = false, features = ["ahash"] }
+
+# Math functions for neural network (no_std)
+libm = "0.2"
+
+[features]
+default = []
+std = []  # Enable for testing with std
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+opt-level = 3
+lto = true
+codegen-units = 1

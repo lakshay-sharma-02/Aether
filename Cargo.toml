@@ -3,7 +3,7 @@ resolver = "2"
 members = [
     "kernel",
     "vexfs",
-    # "ai-core",   # future member
+    "ai-core",
     # "compositor", # future member
     # "shell",      # future member
 ]
